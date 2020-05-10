@@ -13,13 +13,18 @@ module.exports = {
 	module: {
 		rules: [{
             test: /\.tsx|\.js?$/,
-            use: 'ts-loader',
+            use: 'babel-loader',
             exclude: /node_modules/
         }]
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js']
     },
+    optimization: {
+		splitChunks:{
+			chunks: 'all',
+		}
+	},
 
 	plugins: [new HtmlWebpackPlugin({
 		template: './public/index.html'
