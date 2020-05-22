@@ -12,7 +12,8 @@ module.exports = {
     [
       "@babel/preset-env",
       {
-        modules: outputModule || false
+        modules: outputModule || false,
+        targets: {node: '8.11.1'}, // 支持 async await
       }
     ],
     "@babel/preset-react"

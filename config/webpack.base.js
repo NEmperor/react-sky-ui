@@ -6,7 +6,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 console.log(CleanWebpackPlugin)
 module.exports = {
 	entry: {
-		main: './src/index.tsx'
+		main: './src/index.js'
     },
     output: {
 		filename: 'bundle.js',

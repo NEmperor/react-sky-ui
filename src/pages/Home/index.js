@@ -1,12 +1,18 @@
 import  React  from 'react';
+import ProxyLink from '@/components/ProxyLink'
 import styles from './style.less';
-import s from './a.css'
 
 export default class Home extends React.Component{
+
+    async componentDidMount(){
+        console.log(123)
+        const data = await Promise.resolve(1)
+        console.log(data)
+    }
     render(){
         return (<div className={styles.home}>
             <div className="header">Header</div>
-            <div className={styles.title}>Home</div>
+            <ProxyLink to='/immerTest'>immerTest</ProxyLink>
             </div>) 
     }
 }
