@@ -1,6 +1,8 @@
 const path = require('path')
 const { smart } = require('webpack-merge');
 const base = require('./webpack.base');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
 module.exports = smart(base, {
     mode: 'development',
     devServer:{  
@@ -18,6 +20,7 @@ module.exports = smart(base, {
             disableDotRule: true
         }
     },
-    devtool: 'inline-source-map'
+    devtool: 'inline-source-map',
+    plugins:[new BundleAnalyzerPlugin()]
 });
 console.log(process.env.NODE_ENV)

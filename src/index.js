@@ -1,9 +1,10 @@
 import React from 'react';
 import { createBrowserHistory } from 'history';
 import ProxyLink from '@/components/ProxyLink'
+import routes from '@/router'
 import dva, { connect } from './dva';
+import createLoading from './dva-loading';
 import { Router, Route, Link, routerRedux } from './dva/router';
-// import createLoading from './dva-loading';
 import dynamic from './dva/dynamic';
 import { delay } from './utils';
 
@@ -28,7 +29,7 @@ const app = dva({
 });
 //use 就是使用插件或者说钩子
 //app.use({ onAction: createLogger() });
-// app.use(createLoading());
+app.use(createLoading());
 
 app.use({
     //当状态发生变化之后会执行监听函数
@@ -37,53 +38,39 @@ app.use({
     }
 });
 
-app.model({
-    namespace: 'counter',
-    state: { number: 0 },
-    reducers: {
-        add(state) {// "counter/add"
-            return { number: state.number + 1 };
-            /*  return produce(state, draftState => {
-                 draftState.number += 1;
-             }); */
+// app.model({
+//     namespace: 'counter',
+//     state: { number: 0 },
+//     reducers: {
+//         add(state) {// "counter/add"
+//             return { number: state.number + 1 };
+//             /*  return produce(state, draftState => {
+//                  draftState.number += 1;
+//              }); */
            
-            console.log(state)
-        },
-        minus(state) {// "counter/add"
-            return { number: state.number - 1 };
-        }
-    },
-    effects: {
-        *asyncAdd(action, { put }) {
-            yield delay(3000);
-            throw new Error('我是Counter asyncAdd的错误');
-            yield put({ type: 'add' });
-        }
-    },
-    subscriptions: {
-        changeTitle({ history, dispatch }, done) {
-            history.listen(({ pathname }) => {
-                document.title = pathname;
-            });
-            //done('我是subscriptions changeTitle changeTitle错误');
-        }
-    }
-});
-function Counter(props) {
-    return (
-        <div>
-            <p>{props.loading ? <span>执行中</span> : props.number}</p>
-            <button onClick={() => props.dispatch({ type: "counter/add" })}>加1</button>
-            <button disabled={props.loading} onClick={() => props.dispatch({ type: "counter/asyncAdd" })}>异步+</button>
-        </div>
-    )
-}
-const ConnectedCounter = connect(
-    (state) => ({
-        ...state.counter,
-        // loading: state.loading.models.counter
-    })
-)(Counter);
+//             console.log(state)
+//         },
+//         minus(state) {// "counter/add"
+//             return { number: state.number - 1 };
+//         }
+//     },
+//     effects: {
+//         *asyncAdd(action, { put }) {
+//             yield delay(3000);
+//             // throw new Error('我是Counter asyncAdd的错误');
+//             yield put({ type: 'add' });
+//         }
+//     },
+//     subscriptions: {
+//         changeTitle({ history, dispatch }, done) {
+//             history.listen(({ pathname }) => {
+//                 document.title = pathname;
+//             });
+//             //done('我是subscriptions changeTitle changeTitle错误');
+//         }
+//     }
+// });
+
 const Home = (props) => (
     <div>
         <p>Home</p>
@@ -93,28 +80,39 @@ const Home = (props) => (
 const ConnectedHome = connect(
     (state) => state
 )(Home);
-const ImmerTest = dynamic({
-    app,
-    models: () => [import(/* webpackChunkName: "ImmerTest" */'./pages/ImmerTest/model.js')],
-    component: () => import(/* webpackChunkName: "ImmerTest" */'./pages/ImmerTest')
-});
+// const ImmerTest = dynamic({
+//     app,
+//     models: () => [import(/* webpackChunkName: "ImmerTest" */'./pages/ImmerTest/model.js')],
+//     component: () => import(/* webpackChunkName: "ImmerTest" */'./pages/ImmerTest')
+// });
 
-const UsersPage = dynamic({
-    app,
-    models: () => [import(/* webpackChunkName: "users" */'./models/users')],
-    component: () => import(/* webpackChunkName: "users" */'./pages/User')
-});
+// const UsersPage = dynamic({
+//     app,
+//     models: () => [import(/* webpackChunkName: "users" */'./models/users')],
+//     component: () => import(/* webpackChunkName: "users" */'./pages/User')
+// });
 
 app.router(({ history, app }) => {
+
+    const renderAsyncRoute = (routes) => {
+        return routes.map((route)=> {
+            const models = route.models ? () => [import(`./pages/${route.component}/model`)]: ()=>[]
+            const component = dynamic({
+                app,
+                models,
+                component: () => import(`./pages/${route.component}`)
+            });
+            // const component = LazyLoad(()=>import(`./pages/${route.component}`)) ;
+            return <Route key={route.key} exact path={route.path} component={component} />
+        } )
+    }
+
     return (
-            <ConnectedRouter getUserConfirmation={(message, callback) => {
-                // this is the default behavior
-                console.log("qwert")
-                // callback(allowTransition);
-              }} history={history}>
+            <ConnectedRouter history={history}>
                 <>
                     <ul>
                         <li><Link to="/">home</Link></li>
+                        <li><Link to="/counter">counter</Link></li>
                         <li><Link to="/immerTest">immerTest</Link></li>
                         <ProxyLink
                             proxyable
@@ -127,11 +125,11 @@ app.router(({ history, app }) => {
                         </ProxyLink>
                         <li><Link to="/users">users</Link></li>
                     </ul>
-                    <Route path="/" exact component={ConnectedHome} />
+                    {/* <Route path="/" exact component={ConnectedHome} />
                     <Route path="/counter" component={ConnectedCounter} />
                     <Route path="/immerTest" component={ImmerTest} />
-                    <Route path="/users" component={UsersPage} />
-                    
+                    <Route path="/users" component={UsersPage} /> */}
+                    {renderAsyncRoute(routes)}
                 </>
             </ConnectedRouter>
     )

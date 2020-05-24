@@ -9,7 +9,8 @@ const router = [
         path: '/counter',
         key:'counter',
         name:'计时器',
-        component: 'Counter'
+        component: 'Counter',
+        models: true
     }
 ]
 
