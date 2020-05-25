@@ -1,5 +1,8 @@
 const path = require('path')
 const { smart } = require('webpack-merge');
+const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware');
+const errorOverlayMiddleware = require('react-dev-utils/errorOverlayMiddleware');
+const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware');
 const base = require('./webpack.base');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
@@ -15,12 +18,14 @@ module.exports = smart(base, {
         //自动打开浏览器  
         open:true,
         hot:true,
-        https: true,
+        https: false,
+        quiet: true,
         historyApiFallback: {
             disableDotRule: true
-        }
+        },
+        overlay: false,
     },
     devtool: 'inline-source-map',
-    plugins:[new BundleAnalyzerPlugin()]
+    // ss
 });
 console.log(process.env.NODE_ENV)

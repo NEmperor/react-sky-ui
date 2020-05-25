@@ -12,7 +12,12 @@ import { delay } from './utils';
 const { ConnectedRouter, push } = routerRedux;
 
 const app = dva({
-    // history: createBrowserHistory(),
+    history: createBrowserHistory({
+        getUserConfirmation(message, callback) {
+            console.log(message)
+            callback(true)
+          }
+    }),
     //initialState: localStorage.getItem('state') ? JSON.parse(localStorage.getItem('state')) : undefined,
     //它是用来封装和增强reducer
     //跟别的钩子不一样
@@ -38,38 +43,6 @@ app.use({
     }
 });
 
-// app.model({
-//     namespace: 'counter',
-//     state: { number: 0 },
-//     reducers: {
-//         add(state) {// "counter/add"
-//             return { number: state.number + 1 };
-//             /*  return produce(state, draftState => {
-//                  draftState.number += 1;
-//              }); */
-           
-//             console.log(state)
-//         },
-//         minus(state) {// "counter/add"
-//             return { number: state.number - 1 };
-//         }
-//     },
-//     effects: {
-//         *asyncAdd(action, { put }) {
-//             yield delay(3000);
-//             // throw new Error('我是Counter asyncAdd的错误');
-//             yield put({ type: 'add' });
-//         }
-//     },
-//     subscriptions: {
-//         changeTitle({ history, dispatch }, done) {
-//             history.listen(({ pathname }) => {
-//                 document.title = pathname;
-//             });
-//             //done('我是subscriptions changeTitle changeTitle错误');
-//         }
-//     }
-// });
 
 const Home = (props) => (
     <div>
