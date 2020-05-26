@@ -1,7 +1,9 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin');
 
 console.log(CleanWebpackPlugin)
 module.exports = {
@@ -9,7 +11,8 @@ module.exports = {
 		main: './src/index.js'
     },
     output: {
-		filename: '[name].js',
+    filename: '[name].js',
+    chunkFilename:'[name].[contenthash:8].chunk.js',
 		path: path.resolve(__dirname, '../dist')
 	},
 	module: {
@@ -88,9 +91,15 @@ module.exports = {
         protectWebpackAssets: false,
         // cleanAfterEveryBuildPatterns:['**/*'], // 表示打包完成后删除匹配的文件
     }),
+    new webpack.DllReferencePlugin({
+			manifest: path.resolve(__dirname, '../dll', 'vendor-manifest.json')
+    }),
+    new AddAssetHtmlWebpackPlugin({
+			filepath: path.resolve(__dirname, '../dll', 'vendor.dll.js')
+		}),
     new MiniCssExtractPlugin({
       filename: "[name].css",
-      chunkFilename: '[id].css',
+      chunkFilename: '[name].[contenthash:8].chunk.css',
     })
   ],
 }

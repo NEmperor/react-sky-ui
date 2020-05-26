@@ -15,6 +15,8 @@ class Home extends React.Component{
         console.log(data)
     }
     render(){
+
+        console.log(process.env.NODE_ENV)
         
         const { dispatch } = this.props;
         return (<div className={styles.home}>

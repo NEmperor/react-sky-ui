@@ -1,4 +1,5 @@
-const path = require('path')
+const path = require('path');
+const webpack = require('webpack');
 const { smart } = require('webpack-merge');
 const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware');
 const errorOverlayMiddleware = require('react-dev-utils/errorOverlayMiddleware');
@@ -25,6 +26,14 @@ module.exports = smart(base, {
         },
         overlay: false,
     },
+    plugins:[
+        new BundleAnalyzerPlugin(),
+        new webpack.DefinePlugin({
+            "process.env":{
+              NODE_ENV: JSON.stringify(process.env.NODE_ENV)
+            }
+          })
+    ],
     devtool: 'inline-source-map',
     // ss
 });
