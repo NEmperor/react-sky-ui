@@ -8,6 +8,28 @@ const hooks = [
     "_handleActions",
     "onError"
 ]
+
+function getExtraReducers(hook) {//数组 [{key1:reducer1,key2:reducer2},{key3:reducer3,key4:reducer4}]
+    let ret = {};
+    for (let reducerObject of hook) {//{key1:reducer1,key2:reducer2} {key3:reducer3,key4:reducer4}]
+        ret = { ...ret, ...reducerObject };
+    }
+    return ret;//{key1,key2,key3,key4}
+    //return Object.assign({},...hook);
+    /**
+     * {key1,key2}
+     * {key3,key4}
+     * {key1,key:2,key3:key3}
+     * state=
+     * {
+     * key1:xx,
+     * key2:xx
+     * key3:xx
+     * key3:xx
+     * }
+     */
+}
+
 /**
  * 把那些不是hooks的属性去掉
  * @param {} options 
@@ -62,24 +84,4 @@ function getOnReducer(hook) {
         }
         return reducer;
     }
-}
-function getExtraReducers(hook) {//数组 [{key1:reducer1,key2:reducer2},{key3:reducer3,key4:reducer4}]
-    let ret = {};
-    for (let reducerObject of hook) {//{key1:reducer1,key2:reducer2} {key3:reducer3,key4:reducer4}]
-        ret = { ...ret, ...reducerObject };
-    }
-    return ret;//{key1,key2,key3,key4}
-    //return Object.assign({},...hook);
-    /**
-     * {key1,key2}
-     * {key3,key4}
-     * {key1,key:2,key3:key3}
-     * state=
-     * {
-     * key1:xx,
-     * key2:xx
-     * key3:xx
-     * key3:xx
-     * }
-     */
 }

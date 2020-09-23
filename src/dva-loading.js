@@ -2,14 +2,14 @@ const SHOW = '@@DVA_LOADING/SHOW';//当执行saga之前派发的动作
 const HIDE = '@@DVA_LOADING/HIDE';//当saga执行结束之后派发的动作
 const NAMESPACE = 'loading';//命名空间 { }
 export default function createLoading(options) {
-    let initialState = {
+    const initialState = {
         global: false,
         models: {},
         effects: {}
     }
     const extraReducers = {
         [NAMESPACE](state = initialState, { type, payload }) {
-            let { namespace, actionType } = payload || {};
+            const { namespace, actionType } = payload || {};
             switch (type) {
                 case SHOW:
                     return {
@@ -24,9 +24,9 @@ export default function createLoading(options) {
                         }
                     }
                 case HIDE: {
-                    let effects = { ...state.effects, [actionType]: false };
+                    const effects = { ...state.effects, [actionType]: false };
                     //effects={counter1/asyncAdd:true,counter2/asyncMinus:false}
-                    let models = {
+                    const models = {
                         ...state.models,
                         [namespace]: Object.keys(effects).some(actionType => {
                             const _namespace = actionType.split('/')[0];// counter1/asyncAdd
@@ -63,6 +63,7 @@ export default function createLoading(options) {
             }
         }
     }
+
     return {
         onEffect,
         extraReducers //{loading:function(){}}

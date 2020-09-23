@@ -135,8 +135,9 @@ export default function (opts = {}) {
 }
 function getReducer(model, handleActions) {
     const { reducers = {}, state: defaultState } = model;
-    let reducer = function (state = defaultState, action) {
-        let reducer = reducers[action.type];//action.type= "counter/add"
+    // 这里是利用了闭包
+    const reducer = function (state = defaultState, action) {
+        const reducer = reducers[action.type];//action.type= "counter/add"
         if (reducer) {
             return reducer(state, action);
         }
@@ -182,17 +183,6 @@ function getWatcher(key, effect, model, onEffect, onError) {
 }
 
 
-/**
- * store.dispatch({type:'counter/add'});
- * {
- *    counter:function(state,action){
- *
- *   },
- *     counter2:function(state,action){
- *
- *   }
- * }
- */
 //此方法就是把reducers对象的属性名从add变成counter/add
 
 function prefix(obj, namespace) {
@@ -213,28 +203,3 @@ function prefixNamespace(model) {
     }
     return model;
 }
-/**
- * reducers: {
-        add(state) {// "counter/add"
-            return { number: state.number + 1 };
-        }
-    },
-    reducers: {
-        'counter/add'(state) {// "counter/add"
-            return { number: state.number + 1 };
-        }
-    },
-
-     effects: {
-        *asyncAdd(action, { put }) {
-            yield delay(1000);
-            yield put({ type: 'add' });
-        }
-    },
-     effects: {
-        *counter/asyncAdd(action, { put }) {
-            yield delay(1000);
-            yield put({ type: 'add' });
-        }
-    },
- */

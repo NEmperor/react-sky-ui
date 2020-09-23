@@ -3,8 +3,9 @@ const DefaultLoadingComponent = props => <div>加载中</div>
 export default function dynamic(config) {
     const { app, models, component } = config;
     return class extends React.Component {
-        constructor(props) {
-            super(props);
+        constructor() {
+
+            super()
             //加载组件 当加载中起作用
             this.LoadingComponent = config.LoadingComponent || DefaultLoadingComponent;
             //定义一个默认的状态 AsyncComponent=null

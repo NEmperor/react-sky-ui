@@ -1,22 +1,25 @@
 import React from 'react';
 import { createBrowserHistory } from 'history';
-import ProxyLink from '@/components/ProxyLink'
 import routes from '@/router'
-import dva, { connect } from './dva';
+import dva from './dva';
 import createLoading from './dva-loading';
-import { Router, Route, Link, routerRedux } from './dva/router';
+import immer from './dva-immer';
+import Main from './main'
+import { Route, routerRedux, Switch } from './dva/router';
 import dynamic from './dva/dynamic';
-import { delay } from './utils';
+import './index.less'
+import { renderRoutes } from '@/router/react-router-config'
 
-
+const noop = () => []
 const { ConnectedRouter, push } = routerRedux;
 
 const app = dva({
     history: createBrowserHistory({
+        "basename": "/",
         getUserConfirmation(message, callback) {
             console.log(message)
             callback(true)
-          }
+        }
     }),
     //initialState: localStorage.getItem('state') ? JSON.parse(localStorage.getItem('state')) : undefined,
     //它是用来封装和增强reducer
@@ -24,7 +27,7 @@ const app = dva({
     extraEnhancers: [
         createStore => (...args) => {
             const store = createStore(...args);
-            
+
             return store;
         }
     ],
@@ -42,76 +45,59 @@ app.use({
         //localStorage.setItem('state', JSON.stringify(state));
     }
 });
+app.use(immer());
 
-
-const Home = (props) => (
-    <div>
-        <p>Home</p>
-        <button onClick={() => props.dispatch(push('/counter'))}>跳到/counter</button>
-    </div>
-)
-const ConnectedHome = connect(
-    (state) => state
-)(Home);
-// const ImmerTest = dynamic({
-//     app,
-//     models: () => [import(/* webpackChunkName: "ImmerTest" */'./pages/ImmerTest/model.js')],
-//     component: () => import(/* webpackChunkName: "ImmerTest" */'./pages/ImmerTest')
-// });
-
-// const UsersPage = dynamic({
-//     app,
-//     models: () => [import(/* webpackChunkName: "users" */'./models/users')],
-//     component: () => import(/* webpackChunkName: "users" */'./pages/User')
-// });
 
 app.router(({ history, app }) => {
 
     const renderAsyncRoute = (routes) => {
-        return routes.map((route)=> {
-            const models = route.models ? () => [import(`./pages/${route.component}/model`)]: ()=>[]
-            const component = dynamic({
+        return routes.map((route) => {
+            const { models = noop, component } = route;
+            const AsyncComponent = dynamic({
                 app,
                 models,
-                component: () => import(`./pages/${route.component}`)
+                component
             });
-            // const component = LazyLoad(()=>import(`./pages/${route.component}`)) ;
-            return <Route key={route.key} exact path={route.path} component={component} />
-        } )
+            return <Route key={route.key} exact path={route.path} component={AsyncComponent} />
+        })
     }
 
+    console.log(routes)
+
     return (
-            <ConnectedRouter history={history}>
-                <>
+        <ConnectedRouter history={history}>
+            {/* <Layout>
+                <Sider>
                     <ul>
-                        <li><Link to="/">home</Link></li>
-                        <li><Link to="/counter">counter</Link></li>
-                        <li><Link to="/immerTest">immerTest</Link></li>
                         <ProxyLink
                             proxyable
-                            prompt={(push)=>{
-                                if(true){console.log("push");push()}
-                            }} 
+                            prompt={(push) => {
+                                if (true) { console.log("push"); push() }
+                            }}
                             to='/immerTest'
-                         >
-                             proxy link
+                        >
+                            proxy link
                         </ProxyLink>
                         <li><Link to="/users">users</Link></li>
                     </ul>
-                    {/* <Route path="/" exact component={ConnectedHome} />
-                    <Route path="/counter" component={ConnectedCounter} />
-                    <Route path="/immerTest" component={ImmerTest} />
-                    <Route path="/users" component={UsersPage} /> */}
-                    {renderAsyncRoute(routes)}
-                </>
-            </ConnectedRouter>
+                </Sider>
+                <Layout>
+                    <Header>Header</Header>
+                    <Content>
+                        {renderAsyncRoute(routes)}
+                    </Content>
+                    <Footer>Footer</Footer>
+                </Layout>
+            </Layout> */}
+                    {renderRoutes(routes,{app})}
+        </ConnectedRouter>
     )
 
 });
 app.start('#root');
 
 
-window.app = app;
+window.app = window.__app = app;
 /**
  *
  * Error: Could not find router reducer in state tree, it must be mounted under "router"

@@ -13,7 +13,8 @@ module.exports = {
     output: {
     filename: '[name].js',
     chunkFilename:'[name].[contenthash:8].chunk.js',
-		path: path.resolve(__dirname, '../dist')
+    path: path.resolve(__dirname, '../dist'),
+    publicPath:'/'
 	},
 	module: {
 		rules: [
@@ -39,7 +40,17 @@ module.exports = {
               options: {
                 sourceMap: true,
                 modules: {
-                  localIdentName: '[path][name]__[local]--[hash:base64:5]'
+                  localIdentName: '[path][name]__[local]--[hash:base64:5]',
+                  getLocalIdent: (context, localIdentName, localName, options) => {
+                    const _path = context._module.context
+                    const _name = path.parse(context._module.resource).name
+            
+                    if (_path.search(/node_modules/) !== -1) {
+                        return localName
+                    } else {
+                        return localIdentName
+                    }
+                }
                 },
                 
               }
@@ -91,12 +102,12 @@ module.exports = {
         protectWebpackAssets: false,
         // cleanAfterEveryBuildPatterns:['**/*'], // 表示打包完成后删除匹配的文件
     }),
-    new webpack.DllReferencePlugin({
-			manifest: path.resolve(__dirname, '../dll', 'vendor-manifest.json')
-    }),
-    new AddAssetHtmlWebpackPlugin({
-			filepath: path.resolve(__dirname, '../dll', 'vendor.dll.js')
-		}),
+    // new webpack.DllReferencePlugin({
+		// 	manifest: path.resolve(__dirname, '../dll', 'vendor-manifest.json')
+    // }),
+    // new AddAssetHtmlWebpackPlugin({
+		// 	filepath: path.resolve(__dirname, '../dll', 'vendor.dll.js')
+		// }),
     new MiniCssExtractPlugin({
       filename: "[name].css",
       chunkFilename: '[name].[contenthash:8].chunk.css',

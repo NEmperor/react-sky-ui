@@ -5,12 +5,7 @@ export default {
     state: { number: 0 },
     reducers: {
         add(state) {// "counter/add"
-            return { number: state.number + 1 };
-            /*  return produce(state, draftState => {
-                 draftState.number += 1;
-             }); */
-           
-            console.log(state)
+            state.number+=1
         },
         minus(state) {// "counter/add"
             return { number: state.number - 1 };
