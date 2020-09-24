@@ -1,32 +1,22 @@
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import { Provider, connect } from 'react-redux';
-import { createHashHistory } from 'history';
 import { NAMESPACE_SEP } from './constant';
 import createSagaMiddleware from 'redux-saga';
 import * as sagaEffects from 'redux-saga/effects';
-import { routerRedux } from './router';
 import Plugin, { filterHooks } from './plugin';
 export { connect }
-const { routerMiddleware, connectRouter } = routerRedux;
-const hashHistory = createHashHistory({
-    getUserConfirmation(message, callback) {
-        console.log(message)
-        callback(true)
-      }
-});
+
 export default function (opts = {}) {
-    const history = opts.history || hashHistory;
     const app = {
-        _history: history,
         _models: [],
         model,
         _router: null,
         router,
         start
     }
+    
     function model(m) {
         const prefixedModel = prefixNamespace(m);//先添加命名空间的前缀
         app._models.push(prefixedModel);//把model放在数组里去
@@ -37,10 +27,7 @@ export default function (opts = {}) {
         app._router = router;//定义路由
     }
     //这个对象是要传给combineReducers的,是用来合并的,每个属性都是字符串，而且代表合并状态的一个分状态属性
-    const initialReducers = {//初始的reducer  connected-react-redux
-        //当页面路径发生改变时，会向仓库派发动作，仓库状态会发生改变 router:{location,action}
-        router: connectRouter(app._history)
-    };
+    const initialReducers = {};
     const plugin = new Plugin();
     plugin.use(filterHooks(opts));
     app.use = plugin.use.bind(plugin);
@@ -57,9 +44,7 @@ export default function (opts = {}) {
         const extraMiddlewares = plugin.get('onAction');
         const extraEnhancers = plugin.get('extraEnhancers');
         //applyMiddleware返回值是一个enhancer,增加createStore
-        const enhancers = [...extraEnhancers, applyMiddleware(routerMiddleware(history),
-            sagaMiddleware, ...extraMiddlewares)];
-        //let store = applyMiddleware(routerMiddleware(history),sagaMiddleware, ...extraMiddlewares)(createStore)(rootReducer, opts.initialState);
+        const enhancers = [...extraEnhancers, applyMiddleware(sagaMiddleware, ...extraMiddlewares)];
         const store = createStore(rootReducer, opts.initialState, compose(...enhancers));
         app._store = store;
         const onStateChange = plugin.get('onStateChange');
@@ -73,7 +58,7 @@ export default function (opts = {}) {
         sagas.forEach(sagaMiddleware.run);//run就是启动saga执行
         ReactDOM.render(
             <Provider store={app._store}>
-                {app._router({ app, history })}
+                {app._router({ app })}
             </Provider>
             , document.querySelector(container));
         //向当前的应用插入一个模型  state reducers subscriptions effects  
@@ -93,8 +78,8 @@ export default function (opts = {}) {
         }
         function runSubscription(subscriptions = {}) {
             for (let key in subscriptions) {
-                let subscription = subscriptions[key];
-                subscription({ history, dispatch: app._store.dispatch }, error => {
+                const subscription = subscriptions[key];
+                subscription({ dispatch: app._store.dispatch }, error => {
                     let onError = plugin.get('onError');
                     onError.forEach(fn => fn(error));
                 });
@@ -109,7 +94,7 @@ export default function (opts = {}) {
             }));
         }
         function getSagas(app) {
-            let sagas = [];
+            const sagas = [];
             for (const model of app._models) {
                 //把effects对象变成一个saga
                 sagas.push(getSaga(model.effects, model, plugin.get('onEffect')));
@@ -133,6 +118,7 @@ export default function (opts = {}) {
     }
     return app;
 }
+
 function getReducer(model, handleActions) {
     const { reducers = {}, state: defaultState } = model;
     // 这里是利用了闭包
@@ -149,7 +135,6 @@ function getReducer(model, handleActions) {
     return reducer;
 }
 
-
 function prefixType(type, model) {
     if (type.indexOf('/') === -1) {
         return `${model.namespace}${NAMESPACE_SEP}${type}`;
@@ -160,6 +145,7 @@ function prefixType(type, model) {
     }
     return type;
 }
+
 function getWatcher(key, effect, model, onEffect, onError) {
     function put(action) {
         return sagaEffects.put({ ...action, type: prefixType(action.type, model) });
@@ -187,7 +173,7 @@ function getWatcher(key, effect, model, onEffect, onError) {
 
 function prefix(obj, namespace) {
     return Object.keys(obj).reduce((memo, key) => {
-        let newKey = `${namespace}${NAMESPACE_SEP}${key}`;
+        const newKey = `${namespace}${NAMESPACE_SEP}${key}`;
         memo[newKey] = obj[key];
         return memo;
     }, {});

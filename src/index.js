@@ -1,25 +1,16 @@
 import React from 'react';
-import { createBrowserHistory } from 'history';
 import routes from '@/router'
 import dva from './dva';
 import createLoading from './dva-loading';
 import immer from './dva-immer';
-import { Route, routerRedux } from './dva/router';
-import dynamic from './dva/dynamic';
+import { Router } from 'react-router'
+import history from '@/router/history'
 import './index.less'
 import { renderRoutes } from '@/router/react-router-config'
+import login from '@/models/login'
 
-const noop = () => []
-const { ConnectedRouter } = routerRedux;
 
 const app = dva({
-    history: createBrowserHistory({
-        "basename": "/",
-        getUserConfirmation(message, callback) {
-            console.log(message)
-            callback(true)
-        }
-    }),
     //initialState: localStorage.getItem('state') ? JSON.parse(localStorage.getItem('state')) : undefined,
     //它是用来封装和增强reducer
     //跟别的钩子不一样
@@ -34,7 +25,8 @@ const app = dva({
         alert(e);
     }
 });
-//use 就是使用插件或者说钩子
+
+app.model(login)
 //app.use({ onAction: createLogger() });
 app.use(createLoading());
 
@@ -46,66 +38,14 @@ app.use({
 });
 app.use(immer());
 
-
-app.router(({ history, app }) => {
-
-    const renderAsyncRoute = (routes) => {
-        return routes.map((route) => {
-            const { models = noop, component } = route;
-            const AsyncComponent = dynamic({
-                app,
-                models,
-                component
-            });
-            return <Route key={route.key} exact path={route.path} component={AsyncComponent} />
-        })
-    }
-
+app.router(({ app }) => {
     return (
-        <ConnectedRouter history={history}>
-            {/* <Layout>
-                <Sider>
-                    <ul>
-                        <ProxyLink
-                            proxyable
-                            prompt={(push) => {
-                                if (true) { console.log("push"); push() }
-                            }}
-                            to='/immerTest'
-                        >
-                            proxy link
-                        </ProxyLink>
-                        <li><Link to="/users">users</Link></li>
-                    </ul>
-                </Sider>
-                <Layout>
-                    <Header>Header</Header>
-                    <Content>
-                        {renderAsyncRoute(routes)}
-                    </Content>
-                    <Footer>Footer</Footer>
-                </Layout>
-            </Layout> */}
-                    {renderRoutes(routes,{app})}
-        </ConnectedRouter>
+        <Router history={history}>
+            {renderRoutes(routes)}
+        </Router>
     )
 
 });
 app.start('#root');
 
-
 window.app = window.__app = app;
-/**
- *
- * Error: Could not find router reducer in state tree, it must be mounted under "router"
- * {
- *    router,
- *    counter,
- *    users
- * }
- * {
- *   preset:[],
- *   present:{router,counter,users}
- *   future:[]
- * }
- */

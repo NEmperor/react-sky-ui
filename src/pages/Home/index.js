@@ -1,18 +1,30 @@
 import  React  from 'react';
 import { connect } from 'react-redux'
-import { Router, Route, Link, routerRedux } from '@/dva/router';
 import ProxyLink from '@/components/ProxyLink'
 import styles from './style.less';
-
-const { push } = routerRedux;
 
 @connect()
 class Home extends React.Component{
 
+    constructor(props){
+        super();
+        this.history = props.history
+    }
+
     async componentDidMount(){
-        // console.log(aaa)
+
         const data = await Promise.resolve(1)
         console.log(data)
+        console.log(this.props)
+    }
+
+    jump = () => {
+        this.history.push("/counter")
+    }
+
+    skip = () => {
+        console.log(__RouterContext);
+        
     }
     render(){
 
@@ -21,9 +33,8 @@ class Home extends React.Component{
         const { dispatch } = this.props;
         return (<div className={styles.home}>
             <div className="header">Header</div>
-            <ProxyLink to='/immerTest'>immerTest</ProxyLink>
-            <button onClick={() => dispatch(push('/counter'))}>跳到/counter</button>
-            <button onClick={() => abc()}>11</button>
+            <button onClick={this.jump}>跳到/counter</button>
+            <button onClick={this.skip}>test2</button>
             </div>) 
     }
 }

@@ -19,11 +19,11 @@ export default {
         }
     },
     subscriptions: {
-        changeTitle({ history, dispatch }, done) {
-            history.listen(({ pathname }) => {
-                document.title = pathname;
-            });
-            //done('我是subscriptions changeTitle changeTitle错误');
+        changeTitle() {
+            // history.listen(({ pathname }) => {
+            //     document.title = pathname;
+            // });
+            
         }
     }
 }

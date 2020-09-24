@@ -1,10 +1,15 @@
 import React from 'react'
+import 'antd/dist/antd.css'
 import { renderRoutes } from '@/router/react-router-config'
 
-export default class UserLayout extends React.Component{
+export default class UserLayout extends React.Component {
 
-    render(){
+    render() {
         const { route } = this.props;
-        return renderRoutes(route.routes,{app:window.__app})
+        return (
+            <div style={{height:"100vh",backgroundColor:"#000f37"}}>
+                {renderRoutes(route.routes)}
+            </div>
+        )
     }
 }

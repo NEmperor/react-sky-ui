@@ -1,7 +1,7 @@
 import React from 'react';
 const DefaultLoadingComponent = props => <div>加载中</div>
 export default function dynamic(config) {
-    const { app, models, component } = config;
+    const { models, component } = config;
     return class extends React.Component {
         constructor() {
 
@@ -13,17 +13,13 @@ export default function dynamic(config) {
         }
 
         async componentDidMount() {
-            
             let [resolvedModules, AsyncComponent] = await Promise.all([Promise.all(models()), component()]);
             resolvedModules = resolvedModules.map(m => m.default || m);
             AsyncComponent = AsyncComponent.default || AsyncComponent;
-            resolvedModules.forEach(m => app.model(m));
+            resolvedModules.forEach(m => window.__app.model(m));
             this.setState({ AsyncComponent })
         }
 
-        componentWillUnmount(){
-            console.log("AsyncComponent componentWillUnmount")
-        }
         render() {
             const { AsyncComponent } = this.state;
             const { LoadingComponent } = this;

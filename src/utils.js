@@ -1,3 +1,5 @@
+import { parse } from 'querystring';
+
 export function debounce(func, wait) {
     let timeout;
     return function () {
@@ -18,3 +20,5 @@ export function delay(timeout) {
         }, timeout);
     });
 }
+
+export const getPageQuery = () => parse(window.location.href.split('?')[1]);

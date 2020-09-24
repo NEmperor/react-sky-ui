@@ -19,7 +19,7 @@ class Async extends React.Component{
                     Comp:comA.default
                 })
             })
-        },3000)
+        },1000)
         setTimeout(()=>{
             fetchB().then((comB)=>{
                 if(this.uninstall) return
@@ -27,11 +27,10 @@ class Async extends React.Component{
                     Comp:comB.default
                 })
             })
-        },6000)
+        },2000)
     }
 
     componentWillUnmount(){
-        console.log("componentWillUnmount")
         this.uninstall = true
     }
 
