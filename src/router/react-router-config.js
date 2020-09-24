@@ -40,10 +40,8 @@ function renderRoutes(routes, extraProps, switchProps) {
   if (switchProps === void 0) {
     switchProps = {};
   }
-  console.log(extraProps)
   return routes ? React.createElement(Switch, switchProps, routes.map(function (route, i) {
     const { models = noop, component } = route;
-    console.log(route)
     const AsyncComponent = dynamic({
       app:extraProps.app,
       models,

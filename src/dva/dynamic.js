@@ -11,17 +11,22 @@ export default function dynamic(config) {
             //定义一个默认的状态 AsyncComponent=null
             this.state = { AsyncComponent: null };
         }
+
         async componentDidMount() {
-            //result=[[],components]
+            
             let [resolvedModules, AsyncComponent] = await Promise.all([Promise.all(models()), component()]);
             resolvedModules = resolvedModules.map(m => m.default || m);
             AsyncComponent = AsyncComponent.default || AsyncComponent;
             resolvedModules.forEach(m => app.model(m));
             this.setState({ AsyncComponent })
         }
+
+        componentWillUnmount(){
+            console.log("AsyncComponent componentWillUnmount")
+        }
         render() {
-            let { AsyncComponent } = this.state;
-            let { LoadingComponent } = this;
+            const { AsyncComponent } = this.state;
+            const { LoadingComponent } = this;
             return (
                 AsyncComponent ? <AsyncComponent {...this.props} /> : <LoadingComponent />
             )

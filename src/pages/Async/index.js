@@ -4,15 +4,17 @@ const fetchA = () => import(/* webpackChunkName: "componentA" */ "./ComponentA")
 const fetchB = () => import(/* webpackChunkName: "componentB" */ "./ComponentB")
 
 class Async extends React.Component{
+    uninstall = false
 
     state = {
-        Comp: null
+        Comp: null,
     }
 
     componentDidMount(){
         setTimeout(()=>{
             fetchA().then((comA)=>{
-                console.log(comA)
+                console.log(this.uninstall)
+                if(this.uninstall) return
                 this.setState({
                     Comp:comA.default
                 })
@@ -20,12 +22,17 @@ class Async extends React.Component{
         },3000)
         setTimeout(()=>{
             fetchB().then((comB)=>{
-                console.log(comB)
+                if(this.uninstall) return
                 this.setState({
                     Comp:comB.default
                 })
             })
         },6000)
+    }
+
+    componentWillUnmount(){
+        console.log("componentWillUnmount")
+        this.uninstall = true
     }
 
     render(){

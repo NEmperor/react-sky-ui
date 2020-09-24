@@ -4,9 +4,8 @@ import uniq from 'lodash/uniq';
 
 
 export default ({ children, route, location }) => {
-    
+  
   const routes = matchRoutes(route, location.pathname);
-  console.log(routes, location.pathname)
   let authorities = [];
   routes.forEach(item => {
     if (Array.isArray(item.route.authority)) {
@@ -28,7 +27,6 @@ export default ({ children, route, location }) => {
 
 
 const Authorized = ({authority,children, noMatch}) => {
-    console.log(authority,children)
     const currentAuthority = "user"
 
     if (!authority) {

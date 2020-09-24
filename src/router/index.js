@@ -1,9 +1,9 @@
 export const menu = [
     {
-        path: '/',
+        path: '/home',
         key: 'home',
         exact: true,
-        name: '主页',
+        name: '首页',
         component: () => import("../pages/Home"),
     },
     {
@@ -24,6 +24,7 @@ export const menu = [
         key: 'admin',
         name: '高级权限路由',
         component: () => import("../pages/Admin"),
+        authority:["admin","user"]
     },
     {
         path: '/menu',
@@ -60,7 +61,7 @@ const router = [
         ],
       },
     {
-        component: () => import("../main"),
+        component: () => import("../layouts/BasicLayout"),
         routes: [
             ...menu,
             {

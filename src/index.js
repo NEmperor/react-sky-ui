@@ -4,14 +4,13 @@ import routes from '@/router'
 import dva from './dva';
 import createLoading from './dva-loading';
 import immer from './dva-immer';
-import Main from './main'
-import { Route, routerRedux, Switch } from './dva/router';
+import { Route, routerRedux } from './dva/router';
 import dynamic from './dva/dynamic';
 import './index.less'
 import { renderRoutes } from '@/router/react-router-config'
 
 const noop = () => []
-const { ConnectedRouter, push } = routerRedux;
+const { ConnectedRouter } = routerRedux;
 
 const app = dva({
     history: createBrowserHistory({
@@ -61,8 +60,6 @@ app.router(({ history, app }) => {
             return <Route key={route.key} exact path={route.path} component={AsyncComponent} />
         })
     }
-
-    console.log(routes)
 
     return (
         <ConnectedRouter history={history}>
