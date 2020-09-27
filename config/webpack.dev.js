@@ -19,6 +19,7 @@ module.exports = smart(base, {
         //自动打开浏览器  
         open:true,
         hot:true,
+        compress: true,
         https: false,
         quiet: true,
         historyApiFallback: {

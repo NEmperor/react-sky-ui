@@ -55,5 +55,41 @@ function renderRoutes(routes, extraProps, switchProps) {
   })) : null;
 }
 
-export { matchRoutes, renderRoutes };
+
+function renderRoutesDeep(routes, extraProps, switchProps) {
+  if (extraProps === void 0) {
+    extraProps = {};
+  }
+
+  if (switchProps === void 0) {
+    switchProps = {};
+  }
+
+  return routes ? React.createElement(Switch, switchProps, routes.map(function (route, i) {
+    const chilren = route.routes;
+    return React.createElement(Route, {
+      key: route.key || i,
+      path: route.path,
+      exact: route.exact,
+      strict: route.strict,
+      render: function render(props) {
+        // if(route.render){
+        //   return route.render(_extends({}, props, {}, extraProps, {
+        //     route: route
+        //   })) 
+        // }
+        if(route.component){
+          return React.createElement(route.component, _extends({}, props, extraProps, {
+            route: route,
+            children: renderRoutesDeep(chilren)
+          }))
+        }else{
+          return renderRoutesDeep(chilren)
+        }
+      }
+    });
+  })) : null;
+}
+
+export { matchRoutes, renderRoutes, renderRoutesDeep };
 //# sourceMappingURL=react-router-config.js.map

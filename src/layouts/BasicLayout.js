@@ -1,27 +1,69 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import { Layout, Menu, Breadcrumb } from 'antd';
-import 'antd/dist/antd.css'
 import { PieChartOutlined } from '@ant-design/icons';
 
 import { Link } from '@/dva/router';
 import {menu} from '@/router'
-import { renderRoutes, matchRoutes } from '@/router/react-router-config'
+import { matchRoutes } from '@/router/react-router-config'
 import Authorized from '@/pages/Authorized'
 import GlobalHeader from '@/components/GlobalHeader'
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
-
+@connect(({asyncMenu})=>({asyncRouter:asyncMenu.asyncRouter}))
 class BasicLayout extends React.Component {
+
+    static getDerivedStateFromProps(props,state){
+        const { asyncRouter,location, route } = props;
+        if(asyncRouter.length !== state.asyncRouter.length){
+            const routes = matchRoutes(route.routes, location.pathname);
+            const routesPath = routes.map((item)=>item.route.path);
+            if(routesPath.length !== 0 ){
+                const openKeys = routesPath.slice(0,routesPath.length)
+                const selectedKeys = routesPath.slice(-1);
+                return {
+                    asyncRouter,
+                    openKeys,
+                    selectedKeys
+                }
+            }else{
+                return {
+                    asyncRouter
+                }
+            }
+        }
+        
+        return null
+    }
+
     state = {
         collapsed: false,
         openKeys: [],
-        selectedKeys:[]
+        selectedKeys:[],
+        asyncRouter:[]
     };
 
     
     componentDidMount(){
-        this.freshMenu()
+        this.freshMenu();
+        this.initListen()
+    }
+
+    componentWillUnmount(){
+        if(this.uninstallListen){
+            this.uninstallListen()
+        }
+    }
+
+    initListen = () => {
+        const { history } = this.props;
+        this.uninstallListen = history.listen((a)=>{
+            setTimeout(()=>{
+                this.freshMenu()
+            },100)
+            
+        })
     }
 
     freshMenu = () => {
@@ -30,7 +72,9 @@ class BasicLayout extends React.Component {
         const routesPath = routes.map((item)=>item.route.path);
         if(routesPath.length === 0 ) return;
         const openKeys = routesPath.slice(0,routesPath.length)
-        const selectedKeys = routesPath.slice(-1)
+        const selectedKeys = routesPath.slice(-1);
+        this.state.openKeys = openKeys;
+        this.state.selectedKeys = selectedKeys;
         this.setState({
             openKeys,
             selectedKeys
@@ -64,15 +108,18 @@ class BasicLayout extends React.Component {
 
     render() {
         const { openKeys,selectedKeys } = this.state;
-        const { location, route } = this.props;
+        const { asyncRouter,location, route,children } = this.props;
         const routes = matchRoutes(route.routes, location.pathname);
-        
         return (
             <Layout style={{ minHeight: '100vh' }}>
-                <Sider collapsible collapsed={this.state.collapsed} onCollapse={this.onCollapse}>
+                <Sider
+                 collapsible 
+                 collapsed={this.state.collapsed} 
+                 onCollapse={this.onCollapse}
+                >
                     <div className="logo" style={{ height: "32px",backgroundColor:'#fff',margin:"16px",borderRadius:"6px" }} />
                     <Menu onOpenChange={this.openChange} theme="dark" selectedKeys={selectedKeys} openKeys={openKeys}   mode="inline">
-                        {this.renderMenuItem(menu)}
+                        {this.renderMenuItem([...menu,...asyncRouter])}
                     </Menu>
                 </Sider>
                 <Layout className="site-layout">
@@ -84,11 +131,11 @@ class BasicLayout extends React.Component {
                         <Breadcrumb style={{ margin: '16px 0' }}>
                             <Breadcrumb.Item key="/home"><Link to='/home'>首页</Link></Breadcrumb.Item>
                             {
-                                routes.map((item)=>item.route).filter((route)=> route.name !== "首页").map((route)=><Breadcrumb.Item key={route.path}>{route.name}</Breadcrumb.Item>)
+                                routes.map((item)=>item.route).filter((route)=> route.name !== "首页").map((route)=><Breadcrumb.Item key={route.path || "404"}>{route.name}</Breadcrumb.Item>)
                             }
                         </Breadcrumb>
                         <Authorized route={route.routes} location={location}>
-                            {renderRoutes(route.routes)}
+                            {children}
                         </Authorized>
                         
                     </Content>

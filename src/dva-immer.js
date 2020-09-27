@@ -17,6 +17,8 @@ export default function () {
     }
 }
 /**
+ * 
+ shiyong
  reducers=
 {
         add(state) {

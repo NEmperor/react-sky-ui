@@ -1,6 +1,10 @@
+import React from 'react'
+import { Redirect } from 'react-router-dom'
 import dynamic from '@/dva/dynamic'
 
 const noop = () => [];
+
+
 
 export const menu = [
     {
@@ -10,7 +14,7 @@ export const menu = [
         name: '首页',
         component: dynamic({
             models:noop,
-            component: () => import("../pages/Home")
+            component: () => import(/* webpackChunkName: "Home" */"../pages/Home")
           }),
     },
     {
@@ -18,8 +22,8 @@ export const menu = [
         key: 'counter',
         name: '计时器',
         component: dynamic({
-            models: () => [import(`../pages/Counter/model`)],
-            component: () => import("../pages/Counter"),
+            models: () => [import(/* webpackChunkName: "Counter_model" */`../pages/Counter/model`)],
+            component: () => import(/* webpackChunkName: "Counter" */"../pages/Counter"),
           }),
         
     },
@@ -29,7 +33,7 @@ export const menu = [
         name: '按需加载不同组件',
         component: dynamic({
             models:noop,
-            component: () => import("../pages/Async")
+            component: () => import(/* webpackChunkName: "Async" */"../pages/Async")
           }),
     },
     {
@@ -39,7 +43,7 @@ export const menu = [
         
         component: dynamic({
             models:noop,
-            component: () => import("../pages/Admin"),
+            component: () => import(/* webpackChunkName: "Admin" */"../pages/Admin"),
           }),
         authority:["admin","user"]
     },
@@ -47,27 +51,30 @@ export const menu = [
         path: '/menu',
         key: 'menu',
         name: '多级菜单',
-        component: dynamic({
-            models:noop,
-            component:()=>import("../pages/Placehold"),
-          }),
         routes: [
             {
                 path: '/menu/a',
                 key: 'menu1',
-                name: '菜单1',
-                component: dynamic({
-                    models:noop,
-                    component: () => import("@/pages/Menu")
-                  }),
+                name: 'A菜单',
+                routes: [
+                  {
+                      path: '/menu/a/1',
+                      key: 'menu1',
+                      name: 'A菜单1',
+                      component: dynamic({
+                          models:noop,
+                          component: () => import(/* webpackChunkName: "Menu" */"@/pages/Menu")
+                        }),
+                  },
+              ]
             },
             {
                 path: '/menu/b',
                 key: 'menu2',
-                name: '菜单2',
+                name: 'B菜单',
                 component: dynamic({
                     models:noop,
-                    component: () => import("@/pages/Menu")
+                    component: () => import(/* webpackChunkName: "Menu" */"@/pages/Menu")
                   }),
                 
             }
@@ -75,12 +82,14 @@ export const menu = [
     },
 ];
 
+
+
 const router = [
     {
         path: '/user',
         component: dynamic({
             models:noop,
-            component: () => import("../layouts/UserLayout"),
+            component: () => import(/* webpackChunkName: "UserLayout" */"../layouts/UserLayout"),
           }),
         routes: [
           {
@@ -88,30 +97,34 @@ const router = [
             path: '/user/login',
             component: dynamic({
                 models:noop,
-                component: () => import('../pages/Login'),
+                component: () => import(/* webpackChunkName: "Login" */'../pages/Login'),
               }),
             
           },
         ],
-      },
+    },
     {
-        
+        path: '/',
         component: dynamic({
             models:noop,
-            component: () => import("../layouts/BasicLayout"),
+            component: () => import(/* webpackChunkName: "BasicLayout" */"../layouts/BasicLayout"),
           }),
         routes: [
+          {
+            path: '/',
+            "exact": true,
+            component: () => <Redirect to="/home" />,
+          },
             ...menu,
             {
                 component: dynamic({
                     models:noop,
-                    component: () => import("../pages/404"),
+                    component: () => import(/* webpackChunkName: "404" */"../pages/404"),
                   }),
             }
         ]
     },
 ];
-
 
 
 export default router

@@ -4,8 +4,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin');
+const WebpackBar = require('webpackbar');
 
-console.log(CleanWebpackPlugin)
+
 module.exports = {
   entry: {
     main: './src/index.js'
@@ -99,6 +100,7 @@ module.exports = {
     protectWebpackAssets: false,
     // cleanAfterEveryBuildPatterns:['**/*'], // 表示打包完成后删除匹配的文件
   }),
+  new WebpackBar(),
   // new webpack.DllReferencePlugin({
   // 	manifest: path.resolve(__dirname, '../dll', 'vendor-manifest.json')
   // }),

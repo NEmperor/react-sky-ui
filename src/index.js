@@ -1,33 +1,27 @@
 import React from 'react';
-import routes from '@/router'
-import dva from './dva';
+import Dva from './dva2'
 import createLoading from './dva-loading';
 import immer from './dva-immer';
-import { Router } from 'react-router'
-import history from '@/router/history'
+import App from './App'
 import './index.less'
-import { renderRoutes } from '@/router/react-router-config'
 import login from '@/models/login'
-
-
-const app = dva({
-    //initialState: localStorage.getItem('state') ? JSON.parse(localStorage.getItem('state')) : undefined,
-    //它是用来封装和增强reducer
-    //跟别的钩子不一样
-    extraEnhancers: [
-        createStore => (...args) => {
-            const store = createStore(...args);
-
-            return store;
-        }
-    ],
+import asyncMenu from '@/models/asyncMenu'
+const app = new Dva({
     onError(e) {
         alert(e);
     }
-});
+})
+
+// const app = dva({
+//     //initialState: localStorage.getItem('state') ? JSON.parse(localStorage.getItem('state')) : undefined,
+//     //跟别的钩子不一样
+//     onError(e) {
+//         alert(e);
+//     }
+// });
 
 app.model(login)
-//app.use({ onAction: createLogger() });
+app.model(asyncMenu)
 app.use(createLoading());
 
 app.use({
@@ -39,13 +33,9 @@ app.use({
 app.use(immer());
 
 app.router(({ app }) => {
-    return (
-        <Router history={history}>
-            {renderRoutes(routes)}
-        </Router>
-    )
-
+    return (<App />)
 });
+
 app.start('#root');
 
 window.app = window.__app = app;

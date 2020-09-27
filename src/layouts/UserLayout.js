@@ -1,5 +1,4 @@
 import React from 'react'
-import 'antd/dist/antd.css'
 import { renderRoutes } from '@/router/react-router-config'
 
 export default class UserLayout extends React.Component {

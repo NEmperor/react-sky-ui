@@ -20,9 +20,9 @@ export default function (opts = {}) {
     function model(m) {
         const prefixedModel = prefixNamespace(m);//先添加命名空间的前缀
         app._models.push(prefixedModel);//把model放在数组里去
-        console.log(app._models)
         return prefixedModel;
     }
+
     function router(router) {
         app._router = router;//定义路由
     }
@@ -31,6 +31,7 @@ export default function (opts = {}) {
     const plugin = new Plugin();
     plugin.use(filterHooks(opts));
     app.use = plugin.use.bind(plugin);
+
     function start(container) {
         for (const model of app._models) {
             //initialReducers={counter:(state,action)=>newState}
@@ -39,23 +40,28 @@ export default function (opts = {}) {
 
         const rootReducer = createReducer();//返回一个根的reducer
         const sagas = getSagas(app);
-        //app._store = createStore(reducers);
+
         const sagaMiddleware = createSagaMiddleware();
         const extraMiddlewares = plugin.get('onAction');
         const extraEnhancers = plugin.get('extraEnhancers');
+
         //applyMiddleware返回值是一个enhancer,增加createStore
         const enhancers = [...extraEnhancers, applyMiddleware(sagaMiddleware, ...extraMiddlewares)];
         const store = createStore(rootReducer, opts.initialState, compose(...enhancers));
         app._store = store;
+
+
         const onStateChange = plugin.get('onStateChange');
         store.subscribe(() => {
             onStateChange.forEach(listener => listener(store.getState()))
         });
+
         //subscriptions
         for (const model of app._models) {
             runSubscription(model.subscriptions);
         }
-        sagas.forEach(sagaMiddleware.run);//run就是启动saga执行
+
+        sagas.forEach(sagaMiddleware.run);
         ReactDOM.render(
             <Provider store={app._store}>
                 {app._router({ app })}
@@ -67,6 +73,7 @@ export default function (opts = {}) {
             m = model(m);//给reducers effect名字添加命名空间前缀 添加app_models里去
             if(initialReducers[m.namespace]) return ;
             initialReducers[m.namespace] = getReducer(m, plugin._handleActions);
+
             store.replaceReducer(createReducer());//用新的reducer替换掉老的reducer,派发默认动作，会让reducer执行，执行过完后会给 users赋上默认值
             if (m.effects) {
                 sagaMiddleware.run(getSaga(m.effects, m));
@@ -77,10 +84,10 @@ export default function (opts = {}) {
             console.log(initialReducers)
         }
         function runSubscription(subscriptions = {}) {
-            for (let key in subscriptions) {
+            for (const key in subscriptions) {
                 const subscription = subscriptions[key];
                 subscription({ dispatch: app._store.dispatch }, error => {
-                    let onError = plugin.get('onError');
+                    const onError = plugin.get('onError');
                     onError.forEach(fn => fn(error));
                 });
             }
@@ -101,6 +108,7 @@ export default function (opts = {}) {
             }
             return sagas;
         }
+
         function getSaga(effects, model) {
             return function* () {
                 //key=asyncAdd key=asyncMinus 
@@ -129,6 +137,7 @@ function getReducer(model, handleActions) {
         }
         return state;
     }
+
     if (handleActions) {
         return handleActions(reducers, defaultState);
     }

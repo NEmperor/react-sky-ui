@@ -2,7 +2,6 @@ import  React  from 'react';
 import { connect } from 'react-redux'
 
 function Counter(props) {
-    console.log(props)
     const { counter={} } = props
     return (
         <div>
